@@ -2569,10 +2569,14 @@ function _flTrend(x){
   if((x.la||0)>=15)return {t:'ต้องจับตา',bg:'#fff4e6',c:'#b45309'};
   return {t:'รอดำเนินการ',bg:'#eef0f5',c:'#8790a8'};
 }
+function _flApptDate(x){
+  if(x.p2date)return isoToTH(x.p2date);
+  if(x.log&&x.log.length){for(var i=x.log.length-1;i>=0;i--){var r=String(x.log[i].r||'')+' '+String(x.log[i].t||'');if(/นัด|รับปาก/.test(r)){var m=r.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})/);if(m)return m[1];}}}
+  return '';
+}
 function _flAppt(x){
-  var pstL={K:'จ่ายตามนัด',B:'ผิดนัด',P:'รับปากจ่าย',N:''};
-  if(x.p2date){var c=(x.pst==='B')?'#c0392b':(x.pst==='K')?'#15803d':'#15803d';return '<span style="background:#eaf7ef;color:'+c+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap">📅 '+isoToTH(x.p2date)+'</span>';}
-  if(x.pst&&pstL[x.pst])return '<span style="background:#eaf7ef;color:#15803d;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">'+pstL[x.pst]+'</span>';
+  var d=_flApptDate(x);
+  if(d){var brk=(x.pst==='B');var bg=brk?'#fdeceb':'#eaf7ef',c=brk?'#c0392b':'#15803d';return '<span style="background:'+bg+';color:'+c+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap">📅 '+d+(brk?' · ผิดนัด':'')+'</span>';}
   return '<span style="color:#9aa0b5">—</span>';
 }
 function wkFollowup(wi){
