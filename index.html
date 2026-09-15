@@ -2702,7 +2702,7 @@ function renderWeekKPI(){
   recs.forEach(function(x){
     var dn=parseDt(x.du);var dday=dn?dn%100:1;var wi=wkIdx(dday);var w=WS[wi];
     var _st;var pd=parseDt(x.pdate);var _dueYM=dn?Math.floor(dn/100):0;var _perYM=ceyear*100+mon;var _payYM=pd?Math.floor(pd/100):0;var _paidNow=(_payYM===_perYM);if(!dailyCounted(x)){w.owed++;_st='owed';}else if(_dueYM>_perYM){w.done++;_st='done';}else if(_paidNow){var duY=dn?Math.floor(dn/10000):ceyear;var duM=dn?Math.floor((dn%10000)/100):mon;var duLd=new Date(duY,duM,0).getDate();var wkEnd=[7,14,21,28,duLd][wi];if((pd%100)<=wkEnd){w.done++;_st='done';}else{w.late++;_st='late';}}else{w.done++;_st='done';}
-    w.list.push({n:x.n,tel:x.tel||'',cno:x.cno||'',du:x.du||'',pdate:x.pdate||'',paid:(_st==='done'||_st==='late'),pn:x.pn||0,f:x.f||0,status:_st,s:x.s,la:x.la||0,ct:x.ct||'',p2date:x.p2date||'',pst:x.pst||'',opp:x.opp||'',log:x.log||[]});
+    w.list.push({n:x.n,tel:x.tel||'',cno:x.cno||'',du:x.du||'',pdate:x.pdate||'',paid:(_st==='done'||_st==='late'),pn:x.pn||0,f:x.f||0,status:_st,s:x.s,la:(function(){if(dn){var _dd=new Date(Math.floor(dn/10000),Math.floor((dn%10000)/100)-1,dn%100);var _o=Math.floor((today-_dd)/86400000);if(_o>0)return _o;}return x.la||0;})(),ct:x.ct||'',p2date:x.p2date||'',pst:x.pst||'',opp:x.opp||'',log:x.log||[]});
   });
   _wkData=WS;
   var gT=recs.length,gDone=0,gLate=0,gOwed=0;
