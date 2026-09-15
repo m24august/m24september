@@ -2590,7 +2590,7 @@ function wkFollowup(wi){
   else{owed.forEach(function(x,i){
     var cl=_flClass(x),tr=_flTrend(x);
     var rid='_fltl'+wi+'_'+i;
-    rows+='<tr style="border-bottom:1px solid #f1f2f7">'
+    rows+='<tr onclick="var e=document.getElementById(\''+rid+'\');if(e)e.style.display=(e.style.display===\'none\'?\'table-row\':\'none\');" style="border-bottom:1px solid #f1f2f7;cursor:pointer" onmouseover="this.style.background=\'#f3f6ff\'" onmouseout="this.style.background=\'\'">'
       +'<td style="padding:9px 8px;color:#9aa0b5;font-size:11px;text-align:center">'+(i+1)+'</td>'
       +'<td style="padding:9px 8px"><b style="color:#25293f">'+(x.n||'-')+'</b><br><small style="color:#9aa0b5;font-size:10px">'+(x.cno||'')+'</small></td>'
       +'<td style="padding:9px 8px;text-align:right;font-weight:800;color:#c0392b;font-family:Prompt,sans-serif">'+((x.f||0)?Number(x.f).toLocaleString():'-')+'</td>'
@@ -2598,12 +2598,12 @@ function wkFollowup(wi){
       +'<td style="padding:9px 8px"><span style="background:'+cl.bg+';color:'+cl.c+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap">'+cl.t+'</span></td>'
       +'<td style="padding:9px 8px;text-align:center">'+_flAppt(x)+'</td>'
       +'<td style="padding:9px 8px;text-align:center"><span style="background:'+tr.bg+';color:'+tr.c+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">'+tr.t+'</span></td>'
-      +'<td style="padding:9px 8px;text-align:center;color:#9aa0b5;cursor:pointer" onclick="var e=document.getElementById(\''+rid+'\');if(e)e.style.display=(e.style.display===\'none\'?\'table-row\':\'none\');">▾</td>'
+      +'<td style="padding:9px 8px;text-align:center;color:#9aa0b5">▾</td>'
       +'</tr>';
     var tl='';
-    if(x.log&&x.log.length){for(var k=x.log.length-1;k>=0;k--){var e=x.log[k];if(!e)continue;var col=/ไม่ได้|ผิดนัด|ยึด/.test(String(e.t)+e.r)?'#c0392b':/นัด|รับปาก|ชำระ|จ่าย/.test(String(e.t)+e.r)?'#15803d':'#2563eb';tl+='<div style="font-size:11.5px;padding:4px 0 4px 13px;border-left:2px solid #dfe3f0;margin-left:5px;position:relative;color:#444"><span style="position:absolute;left:-6px;top:6px;width:9px;height:9px;border-radius:50%;background:'+col+'"></span><b style="color:#222">'+(e.t||'บันทึก')+'</b> · '+(e.r||'')+'</div>';}}
-    else{tl='<div style="font-size:11.5px;color:#8a8f9e;padding:4px 2px">ยังไม่มีการบันทึกนัด/ติดตามในระบบ — น้องสาขาบันทึกได้ที่ขั้นตอน "ติดตาม & ปิดจบ"</div>';}
-    rows+='<tr id="'+rid+'" style="display:none;background:#f7f9fd"><td colspan="8" style="padding:10px 14px"><div style="font-size:11.5px;font-weight:800;color:#2a2d8f;margin-bottom:7px">📋 ประวัติการติดตาม · '+(x.n||'')+' <span style="font-weight:400;color:#9aa0b5">(จากระบบปกติ)</span></div>'+tl+'</div></tr>';
+    if(x.log&&x.log.length){for(var k=x.log.length-1;k>=0;k--){var e=x.log[k];if(!e)continue;var _rt=String(e.r||''),_dt='',_dl=_rt,_mi=_rt.indexOf('บันทึกวันที่');if(_mi>=0){_dt=_rt.slice(_mi+'บันทึกวันที่'.length).trim();_dl=_rt.slice(0,_mi).replace(/[·\s]+$/,'');}var _hd=_dt||(e.t||'บันทึก');var _bd=(e.t||'')+(_dl?(' → '+_dl):'');var col=/ไม่ได้|ผิดนัด|ยึด/.test(String(e.t)+_rt)?'#c0392b':/นัด|รับปาก|ชำระ|จ่าย/.test(String(e.t)+_rt)?'#15803d':'#2563eb';tl+='<div style="font-size:11.5px;padding:4px 0 4px 13px;border-left:2px solid #dfe3f0;margin-left:5px;position:relative;color:#444;text-align:left"><span style="position:absolute;left:-6px;top:6px;width:9px;height:9px;border-radius:50%;background:'+col+'"></span><b style="color:#222">'+_hd+'</b> — '+_bd+'</div>';}}
+    else{tl='<div style="font-size:11.5px;color:#8a8f9e;padding:4px 2px;text-align:left">ยังไม่มีการบันทึกนัด/ติดตามในระบบ — น้องสาขาบันทึกได้ที่ขั้นตอน "ติดตาม & ปิดจบ"</div>';}
+    rows+='<tr id="'+rid+'" style="display:none;background:#f7f9fd"><td colspan="8" style="padding:10px 14px;text-align:left"><div style="font-size:11.5px;font-weight:800;color:#2a2d8f;margin-bottom:7px;text-align:left">📋 ประวัติการติดตาม · '+(x.n||'')+' <span style="font-weight:400;color:#9aa0b5">(จากระบบปกติ)</span></div>'+tl+'</div></tr>';
   });}
   ov.innerHTML='<div style="max-width:960px;margin:6px auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.28)">'
     +'<div style="background:linear-gradient(120deg,#2A2D8F,#4548b8);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px">'
@@ -2612,7 +2612,7 @@ function wkFollowup(wi){
     +'<button id="_flClose" style="margin-left:auto;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;opacity:.85">×</button></div>'
     +'<div style="background:#eef4ff;border-bottom:1px solid #d9e4fb;color:#2b4a8a;font-size:11.5px;padding:8px 18px">👁️ อ่านอย่างเดียว — ต้องการบันทึก/แก้นัด ทำที่ขั้นตอน "ติดตาม &amp; ปิดจบ" ในระบบปกติ (ข้อมูลอัปเดตมาที่นี่อัตโนมัติ)</div>'
     +'<div style="padding:6px 12px 14px;max-height:62vh;overflow-y:auto"><table style="width:100%;border-collapse:collapse">'
-    +'<thead><tr style="position:sticky;top:0;background:#f5f6fb"><th style="font-size:10.5px;color:#5b6070;padding:8px;text-align:center;border-bottom:2px solid var(--line)">#</th><th style="font-size:10.5px;color:#5b6070;padding:8px;text-align:left;border-bottom:2px solid var(--line)">ลูกค้า</th><th style="font-size:10.5px;color:#5b6070;padding:8px;text-align:right;border-bottom:2px solid var(--line)">ยอดค้าง</th><th style="font-size:10.5px;color:#5b6070;padding:8px;text-align:center;border-bottom:2px solid var(--line)">เลยดิว</th><th style="font-size:10.5px;color:#5b6070;padding:8px;text-align:left;border-bottom:2px solid var(--line)">การติดตามล่าสุด</th><th style="font-size:10.5px;color:#5b6070;padding:8px;text-align:center;border-bottom:2px solid var(--line)">นัดชำระ</th><th style="font-size:10.5px;color:#5b6070;padding:8px;text-align:center;border-bottom:2px solid var(--line)">แนวโน้ม</th><th style="border-bottom:2px solid var(--line)"></th></tr></thead>'
+    +'<thead><tr style="position:sticky;top:0;background:var(--brand)"><th style="font-size:10.5px;color:#fff;padding:8px;text-align:center;background:var(--brand)">#</th><th style="font-size:10.5px;color:#fff;padding:8px;text-align:left;background:var(--brand)">ลูกค้า</th><th style="font-size:10.5px;color:#fff;padding:8px;text-align:right;background:var(--brand)">ยอดค้าง</th><th style="font-size:10.5px;color:#fff;padding:8px;text-align:center;background:var(--brand)">เลยดิว</th><th style="font-size:10.5px;color:#fff;padding:8px;text-align:left;background:var(--brand)">การติดตามล่าสุด</th><th style="font-size:10.5px;color:#fff;padding:8px;text-align:center;background:var(--brand)">นัดชำระ</th><th style="font-size:10.5px;color:#fff;padding:8px;text-align:center;background:var(--brand)">แนวโน้ม</th><th style="background:var(--brand)"></th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table>'
     +'<div style="font-size:11px;color:#8a8f9e;margin-top:10px;line-height:1.5">💡 คอลัมน์ "การติดตามล่าสุด / นัดชำระ / แนวโน้ม" และไทม์ไลน์ ดึงมาจากบันทึกในระบบปกติ · หน้านี้แสดงอย่างเดียว ไม่มีการบันทึกซ้ำ</div>'
     +'</div></div>';
@@ -2748,32 +2748,32 @@ function renderWeekKPI(){
     tbRows+='<tr style="border-bottom:0.5px solid var(--line);cursor:pointer" onclick="wkOpenModal('+w.i+')" onmouseover="this.style.background=\'#f0f4ff\'" onmouseout="this.style.background=\'\'">'
       +'<td class="l" style="padding:8px 10px;font-weight:600;white-space:nowrap">'+w.label+'<span style="font-size:11px;font-weight:400;color:var(--muted)"> ('+w.range+' '+monAbb+')</span>'+statusChip(w)+'</td>'
       +'<td style="text-align:center;padding:8px 6px">'+t+'</td>'
-      +'<td style="width:5px;padding:0;background:var(--brand)"></td>'
+      +'<td style="width:2px;padding:0;background:var(--brand)"></td>'
       +'<td style="text-align:center;padding:8px 6px">'+(show?w.done:'—')+'</td>'
       +'<td style="text-align:center;padding:8px 6px">'+(show?pct2(w.done,t):'—')+'</td>'
-      +'<td style="width:5px;padding:0;background:var(--brand)"></td>'
+      +'<td style="width:2px;padding:0;background:var(--brand)"></td>'
       +'<td style="text-align:center;padding:8px 6px;color:'+(w.late>0?'var(--bad)':'var(--muted)')+'">'+(show?w.late:'—')+'</td>'
       +'<td style="text-align:center;padding:8px 6px">'+(show?paid:'—')+'</td>'
       +'<td style="text-align:center;padding:8px 6px;color:var(--bad)">'+(show?w.owed:'—')+'</td>'
-      +'<td style="width:5px;padding:0;background:var(--brand)"></td>'
+      +'<td style="width:2px;padding:0;background:var(--brand)"></td>'
       +'<td style="text-align:center;padding:8px 6px;background:#f5f6ff">'+(show?wkPill(paid,t):'<span style="color:#aaa">—</span>')+'</td>'
-      +'<td style="width:5px;padding:0;background:var(--brand)"></td>'
+      +'<td style="width:2px;padding:0;background:var(--brand)"></td>'
       +'<td style="text-align:center;padding:8px 6px">'+wkFollowBtn(w.i,w.owed)+'</td>'
       +'</tr>';
   });
   tbRows+='<tr class="grand" style="cursor:pointer" onclick="wkOpenModal(-1)" onmouseover="this.style.opacity=\'0.85\'" onmouseout="this.style.opacity=\'1\'">'
     +'<td class="l" style="padding:9px 10px;font-size:14px">รวมทั้งหมด</td>'
     +'<td style="text-align:center;font-size:14px">'+gT+'</td>'
-    +'<td style="width:5px;padding:0;background:#1a1d5c"></td>'
+    +'<td style="width:2px;padding:0;background:#1a1d5c"></td>'
     +'<td style="text-align:center;font-size:14px">'+gDone+'</td>'
     +'<td style="text-align:center;font-size:14px">'+pct2(gDone,gT)+'</td>'
-    +'<td style="width:5px;padding:0;background:#1a1d5c"></td>'
+    +'<td style="width:2px;padding:0;background:#1a1d5c"></td>'
     +'<td style="text-align:center;font-size:14px">'+gLate+'</td>'
     +'<td style="text-align:center;font-size:14px">'+gPaid+'</td>'
     +'<td style="text-align:center;font-size:14px">'+gOwed+'</td>'
-    +'<td style="width:5px;padding:0;background:#1a1d5c"></td>'
+    +'<td style="width:2px;padding:0;background:#1a1d5c"></td>'
     +'<td style="text-align:center;background:#1a1d5c">'+wkPillGrand(gPaid,gT)+'</td>'
-    +'<td style="width:5px;padding:0;background:#1a1d5c"></td>'
+    +'<td style="width:2px;padding:0;background:#1a1d5c"></td>'
     +'<td style="text-align:center;background:#1a1d5c">'+wkFollowBtn(-1,gOwed)+'</td>'
     +'</tr>';
   var filterBar='';
@@ -2792,17 +2792,17 @@ function renderWeekKPI(){
     +'<div style="font-size:12px;color:var(--muted);margin-bottom:12px">สาขา: <b style="color:var(--brand)">'+scopeLabel+'</b>  ·  รอบ: <b>'+periodLabel+'</b></div>'
     +filterBar+cards
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 8px"><b style="font-size:14px;color:var(--brand)">แผนรายสัปดาห์</b></div>'
-    +'<div style="overflow-x:auto;border:0.5px solid var(--line);border-radius:10px"><table style="border-collapse:collapse;width:100%;font-size:13px;min-width:660px"><colgroup><col style="width:17%"><col style="width:6%"><col style="width:5px"><col style="width:9%"><col style="width:9%"><col style="width:5px"><col style="width:9%"><col style="width:9%"><col style="width:8%"><col style="width:5px"><col style="width:9%"><col style="width:5px"><col style="width:15%"></colgroup>'
+    +'<div style="overflow-x:auto;border:0.5px solid var(--line);border-radius:10px"><table style="border-collapse:collapse;width:100%;font-size:13px;min-width:660px"><colgroup><col style="width:17%"><col style="width:6%"><col style="width:2px"><col style="width:9%"><col style="width:9%"><col style="width:2px"><col style="width:9%"><col style="width:9%"><col style="width:8%"><col style="width:2px"><col style="width:9%"><col style="width:2px"><col style="width:15%"></colgroup>'
     +'<thead><tr>'
     +'<th class="l" rowspan="2" style="background:var(--brand);color:#fff;font-size:13px;padding:8px 10px;white-space:nowrap">สัปดาห์</th>'
     +'<th rowspan="2" style="background:var(--brand);color:#fff;font-size:13px;padding:8px 6px">เป้า</th>'
-    +'<th rowspan="2" style="background:var(--brand);width:5px;padding:0"></th>'
+    +'<th rowspan="2" style="background:var(--brand);width:2px;padding:0"></th>'
     +'<th colspan="2" style="background:#f0fef4;color:#15803d;font-size:13px;font-weight:700;padding:6px;text-align:center;border-bottom:2px solid #86efac">▪ ผลตรงดิว</th>'
-    +'<th rowspan="2" style="background:var(--brand);width:5px;padding:0"></th>'
+    +'<th rowspan="2" style="background:var(--brand);width:2px;padding:0"></th>'
     +'<th colspan="3" style="background:#eff6ff;color:#1d4ed8;font-size:13px;font-weight:700;padding:6px;text-align:center;border-bottom:2px solid #93c5fd">▪ ผลรวม (รวมชำระหลังดิว)</th>'
-    +'<th rowspan="2" style="background:var(--brand);width:5px;padding:0"></th>'
+    +'<th rowspan="2" style="background:var(--brand);width:2px;padding:0"></th>'
     +'<th rowspan="2" style="background:#eef0fb;color:var(--brand);font-size:13px;font-weight:700;padding:8px 10px;border-bottom:2px solid #2a2d8f;white-space:nowrap">%รวม</th>'
-    +'<th rowspan="2" style="background:var(--brand);width:5px;padding:0"></th>'
+    +'<th rowspan="2" style="background:var(--brand);width:2px;padding:0"></th>'
     +'<th rowspan="2" style="background:var(--brand);color:#fff;font-size:13px;font-weight:700;padding:8px 10px;white-space:nowrap">ติดตามงาน</th>'
     +'</tr><tr>'
     +'<th style="background:#f7fef9;color:#15803d;font-size:12px;font-weight:600;padding:5px 6px;border-bottom:1px solid #d1fae5">ทำได้จริง</th>'
