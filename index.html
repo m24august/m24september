@@ -2569,15 +2569,19 @@ function _flTrend(x){
   if((x.la||0)>=15)return {t:'ต้องจับตา',bg:'#fff4e6',c:'#b45309'};
   return {t:'รอดำเนินการ',bg:'#eef0f5',c:'#8790a8'};
 }
-function _flApptDate(x){
-  if(x.p2date)return isoToTH(x.p2date);
-  if(x.log&&x.log.length){for(var i=x.log.length-1;i>=0;i--){var r=String(x.log[i].r||'')+' '+String(x.log[i].t||'');if(/นัด|รับปาก/.test(r)){var m=r.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})/);if(m)return m[1];}}}
-  return '';
+function _flApptRaw(x){
+  // คืน {disp:'dd/mm/yy', ymd:CE-yyyymmdd} จากวันนัด — จาก p2date ก่อน แล้วค่อยหาใน log
+  if(x.p2date){var p=String(x.p2date).split('-');if(p.length===3){var y=parseInt(p[0]);var ce=y>2400?y-543:y;return {disp:isoToTH(x.p2date),ymd:ce*10000+parseInt(p[1])*100+parseInt(p[2])};}}
+  if(x.log&&x.log.length){for(var i=x.log.length-1;i>=0;i--){var r=String(x.log[i].r||'')+' '+String(x.log[i].t||'');if(/นัด|รับปาก/.test(r)){var m=r.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(m){var dd=parseInt(m[1]),mm=parseInt(m[2]),yy=parseInt(m[3]);var fy=yy<100?2500+yy:yy;var ce=fy-543;return {disp:m[1]+'/'+m[2]+'/'+('0'+(fy%100)).slice(-2),ymd:ce*10000+mm*100+dd};}}}}
+  return null;
 }
 function _flAppt(x){
-  var d=_flApptDate(x);
-  if(d){var brk=(x.pst==='B');var bg=brk?'#fdeceb':'#eaf7ef',c=brk?'#c0392b':'#15803d';return '<span style="background:'+bg+';color:'+c+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap">📅 '+d+(brk?' · ผิดนัด':'')+'</span>';}
-  return '<span style="color:#9aa0b5">—</span>';
+  var a=_flApptRaw(x);
+  if(!a)return '<span style="color:#9aa0b5">—</span>';
+  var t=new Date(),tn=t.getFullYear()*10000+(t.getMonth()+1)*100+t.getDate();
+  var overdue=(a.ymd<tn)&&!x.paid;
+  var bg=overdue?'#fdeceb':'#eaf7ef',c=overdue?'#c0392b':'#15803d';
+  return '<span style="background:'+bg+';color:'+c+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap">📅 '+a.disp+(overdue?' · ผิดนัด':'')+'</span>';
 }
 function wkFollowup(wi){
   var list;
