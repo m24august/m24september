@@ -3517,7 +3517,7 @@ setupLogin();
       for(var i=0;i<CUST.length;i++){var x=CUST[i];if(x.s!==code||x.amType!=='1')continue;g++;
         var dn=pdt(x.du),dday=dn?dn%100:1;if(dday<1)dday=1;if(dday>pe.ld)dday=pe.ld;var deadline=Math.min(dday+3,pe.ld),pd=pdt(x.pdate),dueYM=dn?Math.floor(dn/100):0,payYM=pd?Math.floor(pd/100):0,paidNow=(payYM===perYM),st;
         if(!dcount(x))st='owed';else if(dueYM>perYM)st='done';else if(paidNow)st=((pd%100)<=deadline)?'done':'late';else st='done';
-        if(st==='done'){dv++;dm++;}else if(st==='late'){dm++;}else{if(dn&&dn<=tn)over++;else notdue++;}}
+        if(st==='done'){dv++;dm++;}else if(st==='late'){dm++;}else{var ddl=pe.ce*10000+pe.mon*100+deadline;if(dn&&ddl<tn)over++;else notdue++;}}
       return{g:g,dv:dv,dm:dm,over:over,notdue:notdue};}
     function cmpGrp(label,z){var col=z===1?['#ececfb','#3b3fa0']:z===2?['#e7f5ee','#177245']:['#fdf0e3','#a2560f'];return '<tr><td colspan="9" style="font-family:Prompt,sans-serif;font-weight:700;font-size:12px;padding:6px 14px;text-align:left;background:'+col[0]+';color:'+col[1]+'">'+label+'</td></tr>';}
     function cmpBr(name,s){var rem=s.g-s.dm;
