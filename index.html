@@ -3594,4 +3594,35 @@ setupLogin();
   }
 })();
 </script>
+<script>
+/* ===== AUTO-REFRESH (โมดูลแปะท้าย) =====
+   backend ไม่รองรับ action=poll → ดึงข้อมูลเองเป็นรอบผ่าน syncLoad (action=load)
+   ปลอดภัย: ไม่ดึงทับถ้ามีงานค้าง/เพิ่งพิมพ์แก้/เปิดป๊อปอัปอยู่/สลับออกจากแท็บ
+   ถอดออก: ลบเฉพาะก้อน <script> นี้ทั้งก้อน */
+(function(){
+  if(window.__moto24AutoRefresh)return;window.__moto24AutoRefresh=true;
+  var INTERVAL=30000,_t=null;
+  function _modalOpen(){var ids=['loginOv','custOv','dkOv'];for(var i=0;i<ids.length;i++){var e=document.getElementById(ids[i]);if(e){var d=(e.style&&e.style.display)||'';if(d===''&&window.getComputedStyle)d=getComputedStyle(e).display;if(d&&d!=='none')return true;}}return false;}
+  function _canRefresh(){
+    if(typeof SYNC==='undefined'||!SYNC||!SYNC.url)return false;
+    if(SYNC.dirty&&Object.keys(SYNC.dirty).length>0)return false;          /* มีงานค้างยังไม่บันทึก */
+    if(Date.now()-(SYNC._lastEdit||0)<15000)return false;                  /* เพิ่งพิมพ์แก้ใน 15 วิ */
+    if(document.hidden)return false;                                       /* ไม่ได้ดูแท็บนี้ (ประหยัดโควตา) */
+    if(_modalOpen())return false;                                          /* กำลังเปิดป๊อปอัป/รายงาน */
+    return (typeof syncLoad==='function');
+  }
+  function _auto(showToast){
+    if(!_canRefresh())return;
+    try{syncLoad(function(ok){if(ok){try{localLoadDirty();}catch(e){}try{renderAll();}catch(e){}if(showToast&&typeof toast==='function')toast('🔄 อัปเดตข้อมูลล่าสุดจากส่วนกลาง');}});}catch(e){}
+  }
+  function _start(){if(_t)clearInterval(_t);_t=setInterval(function(){_auto(true);},INTERVAL);}
+  /* หยุด poll เดิม (backend ไม่รองรับ) แล้วแทนด้วยตัวดึงเอง — login จะเรียก startPoll → _start */
+  try{if(window._pollTimer)clearInterval(window._pollTimer);}catch(e){}
+  window.startPoll=function(){try{if(window._pollTimer)clearInterval(window._pollTimer);}catch(e){}_start();};
+  /* ดึงทันทีเมื่อกลับมาที่แท็บ/โฟกัสหน้าต่าง (ไม่ต้องรอครบ 30 วิ) */
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(function(){_auto(true);},500);});
+  window.addEventListener('focus',function(){setTimeout(function(){_auto(true);},500);});
+  if(typeof SYNC!=='undefined'&&SYNC&&SYNC.url)_start();                   /* เผื่อ login เกิดไปแล้ว */
+})();
+</script>
 </body></html>
