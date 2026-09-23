@@ -3636,6 +3636,9 @@ setupLogin();
   function lvl(p){return p>=60?'wet':(p>=35?'mid':'dry');}
   function lvlMM(mm){return mm>=35?'wet':(mm>=10?'mid':'dry');}   /* รายวัน 24ชม. (เกณฑ์กรมอุตุฯ) */
   function lvlMMp(mm){return mm>=10?'wet':(mm>=3?'mid':'dry');}    /* รายช่วง ~4-6ชม. */
+  function lvlP(p){return p>=70?'wet':(p>=40?'mid':'dry');}          /* สีตามโอกาสฝน % */
+  function condW(code){code=code||0;if(code===0)return 'แดดจัด ฟ้าโปร่ง';if(code===1)return 'แดดดี เมฆน้อย';if(code===2)return 'มีเมฆบางส่วน';if(code===3)return 'เมฆมาก';if(code===45||code===48)return 'หมอก/ฟ้าหลัว';return 'ฟ้าโปร่ง';}
+  function condShort(code,mm){if(mm>=0.1)return (mm<1?mm.toFixed(1):Math.round(mm))+'มม.';code=code||0;if(code<=1)return 'แดด';if(code===2)return 'เมฆบาง';if(code===3)return 'เมฆมาก';if(code===45||code===48)return 'หมอก';return '—';}
   function barc(p){return p>=60?'wxb-wet':(p>=35?'wxb-mid':'wxb-dry');}
   function brName(code){try{var b=DATA.find(function(d){return d.code===code;});return b?b.name:code;}catch(e){return code;}}
   function scopeCodes(){try{if(typeof VBC==='function'){var v=VBC();if(v&&v.length)return v.slice();}}catch(e){}return (typeof _BRLL!=='undefined')?Object.keys(_BRLL):[];}
@@ -3655,20 +3658,20 @@ setupLogin();
   function render(data,code){try{
     var d=data.daily,h=data.hourly,today=d.time[0];
     var per=[['เช้า',6,11],['สาย',11,13],['บ่าย',13,17],['เย็น',17,20]].map(function(x){var a=periodAgg(h,today,x[1],x[2]);a.name=x[0];return a;});
-    var tmax=Math.max.apply(null,per.map(function(x){return x.p;}));var todayMM=d.precipitation_sum[0]||0;var L=lvlMM(todayMM);var wet=per.slice().sort(function(a,b){return b.mm-a.mm;})[0];
+    var tmax=Math.max.apply(null,per.map(function(x){return x.p;}));var todayMM=d.precipitation_sum[0]||0;var todayCode=d.weather_code[0]||0;var L=lvlP(tmax);var wet=per.slice().sort(function(a,b){return b.mm-a.mm;})[0];
     var nh=new Date().getHours(),nowT=null,nowCode=0;for(var i=0;i<h.time.length;i++){if(h.time[i].indexOf(today)===0&&parseInt(h.time[i].substr(11,2))===nh){nowT=Math.round(h.temperature_2m[i]);nowCode=h.weather_code[i];break;}}
-    pill.className='wx-'+L;pill.querySelector('.i').textContent=icon(wet.code,tmax);pill.querySelector('.tx b').textContent=(L==='wet'?'ฝนหนัก':L==='mid'?'ฝนปานกลาง':'ฝนเล็กน้อย');document.getElementById('wxPillBr').textContent=brName(code);document.getElementById('wxPillPct').textContent=tmax+'%';pill.style.display='flex';
+    pill.className='wx-'+L;pill.querySelector('.i').textContent=icon(todayCode,tmax);pill.querySelector('.tx b').textContent=(L==='wet'?'มีฝนสูง':L==='mid'?'อาจมีฝน':condW(todayCode));document.getElementById('wxPillBr').textContent=brName(code);document.getElementById('wxPillPct').textContent=tmax+'%';pill.style.display='flex';
     document.getElementById('wxSub').textContent='จุดพิกัดสาขา '+brName(code);
     var html='';var sc=scopeCodes().filter(function(c){return _BRLL[c];});
     if(sc.length>1){var opts=sc.sort(function(a,b){return parseInt(a)-parseInt(b);}).map(function(c){return '<option value="'+c+'"'+(c===code?' selected':'')+'>'+brName(c)+'</option>';}).join('');html+='<div style="text-align:right;margin-bottom:2px"><select id="wxSel">'+opts+'</select></div>';}
-    html+='<div class="wx-now '+L+'"><div class="ic">'+icon(nowCode,tmax)+'</div><div><div class="v">'+tmax+'%</div><div class="d">'+(L==='wet'?('<b>'+wet.name+'ฝนหนัก ~'+Math.round(todayMM)+' มม.</b>'):L==='mid'?('ฝนปานกลาง ~'+Math.round(todayMM)+' มม.'):'ฝนเล็กน้อย')+' · โอกาส '+tmax+'%</div></div><div class="tp">อุณหภูมิ<b>'+(nowT!=null?nowT+'°':'—')+'</b></div></div>';
-    html+='<div class="wx-slab">วันนี้ · แบ่งช่วง (สีตามปริมาณฝน)</div><div class="wx-four">';
-    per.forEach(function(x){html+='<div class="wx-p '+lvlMMp(x.mm)+'"><div class="l">'+x.name+'</div><div class="ic">'+icon(x.code,x.p)+'</div><div class="r">'+x.p+'%</div><div class="mm">'+(x.mm>0?x.mm.toFixed(1)+'มม.':(x.temp!=null?x.temp+'°':''))+'</div></div>';});
+    html+='<div class="wx-now '+L+'"><div class="ic">'+icon(todayCode,tmax)+'</div><div><div class="v">'+tmax+'%</div><div class="d">'+(L==='wet'?('<b>'+wet.name+'มีฝนสูง</b> · ~'+Math.round(todayMM)+' มม.'):L==='mid'?('อาจมีฝน · ~'+Math.round(todayMM)+' มม.'):('<b>'+condW(todayCode)+'</b> · ฝนน้อยมาก'))+'</div></div><div class="tp">อุณหภูมิ<b>'+(nowT!=null?nowT+'°':'—')+'</b></div></div>';
+    html+='<div class="wx-slab">วันนี้ · แบ่งช่วง (สีตามโอกาสฝน)</div><div class="wx-four">';
+    per.forEach(function(x){html+='<div class="wx-p '+lvlP(x.p)+'"><div class="l">'+x.name+'</div><div class="ic">'+icon(x.code,x.p)+'</div><div class="r">'+x.p+'%</div><div class="mm">'+condShort(x.code,x.mm)+'</div></div>';});
     html+='</div><div class="wx-slab">7 วันข้างหน้า (ตัวเลข=โอกาสฝน %)</div><div class="wx-week">';
-    for(var k=0;k<d.time.length;k++){var dt=new Date(d.time[k]+'T00:00');var p=d.precipitation_probability_max[k]||0;var mm=d.precipitation_sum[k]||0;var dl=lvlMM(mm);var tod=(k===0);html+='<div class="wx-d'+(tod?' tod':'')+'"><div class="dn">'+(tod?'นี้':DOW[dt.getDay()])+'</div><div class="ic">'+icon(d.weather_code[k],p)+'</div><div class="r" style="color:'+(dl==='wet'?'#c0392b':dl==='mid'?'#e0a021':'#15803d')+'">'+p+'%</div><div class="tp">'+Math.round(mm)+'มม.</div><div class="bar wxb-'+dl+'"></div></div>';}
+    for(var k=0;k<d.time.length;k++){var dt=new Date(d.time[k]+'T00:00');var p=d.precipitation_probability_max[k]||0;var mm=d.precipitation_sum[k]||0;var dl=lvlP(p);var tod=(k===0);html+='<div class="wx-d'+(tod?' tod':'')+'"><div class="dn">'+(tod?'นี้':DOW[dt.getDay()])+'</div><div class="ic">'+icon(d.weather_code[k],p)+'</div><div class="r" style="color:'+(dl==='wet'?'#c0392b':dl==='mid'?'#e0a021':'#15803d')+'">'+p+'%</div><div class="tp">'+condShort(d.weather_code[k],mm)+'</div><div class="bar wxb-'+dl+'"></div></div>';}
     html+='</div>';
-    var dry=[];for(var k2=1;k2<d.time.length;k2++){if((d.precipitation_sum[k2]||0)<10){dry.push(DOW[new Date(d.time[k2]+'T00:00').getDay()]);}}
-    var adv='💡 <b>วางแผน:</b> ';if(L==='wet')adv+='วันนี้<span class="r">'+wet.name+'ฝนหนัก ~'+Math.round(todayMM)+' มม.</span> → เร่งช่วงฝนน้อย ที่เหลือเน้นโทร/นัดโอน';else if(L==='mid')adv+='วันนี้ฝนปานกลาง เตรียมแผนสำรอง (โทร/นัดโอน)';else adv+='<span class="g">วันนี้ฝนเล็กน้อย เหมาะลงพื้นที่</span>';if(dry.length)adv+=' · ฟ้าเปิด: <span class="g">'+dry.slice(0,3).join(', ')+'</span> เร่งเก็บงานค้าง';
+    var dry=[];for(var k2=1;k2<d.time.length;k2++){if((d.precipitation_probability_max[k2]||0)<40){dry.push(DOW[new Date(d.time[k2]+'T00:00').getDay()]);}}
+    var adv='💡 <b>วางแผน:</b> ';if(L==='wet')adv+='วันนี้<span class="r">โอกาสฝนสูง '+tmax+'% ('+wet.name+'หนัก ~'+Math.round(todayMM)+'มม.)</span> → เร่งช่วงฝนน้อย ที่เหลือโทร/นัดโอน';else if(L==='mid')adv+='วันนี้อาจมีฝน ('+tmax+'%) เตรียมแผนสำรอง (โทร/นัดโอน)';else adv+='<span class="g">วันนี้'+condW(todayCode)+' อากาศเปิด เหมาะลงพื้นที่เต็มที่</span>';if(dry.length)adv+=' · โอกาสฝนน้อย: <span class="g">'+dry.slice(0,3).join(', ')+'</span> เร่งเก็บงานค้าง';
     html+='<div class="wx-adv">'+adv+'</div><div class="wx-src">ข้อมูล Open-Meteo · แคชวันละครั้ง</div>';
     document.getElementById('wxBody').innerHTML=html;var sel=document.getElementById('wxSel');if(sel)sel.addEventListener('change',function(){load(this.value);pop.classList.add('show');});
   }catch(e){try{document.getElementById('wxBody').innerHTML='<div class="wx-load">แสดงผลไม่สำเร็จ</div>';}catch(_e){}}}
